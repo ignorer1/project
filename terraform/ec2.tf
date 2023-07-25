@@ -1,25 +1,25 @@
 data "aws_ami" "amazon-linux-2" {
-    most_recent = true
-    filter {
-        name = "owner-alias"
-        values = ["amazon"]
-    }
-    filter {
-        name = "name"
-        values = ["amzn2-ami-hvm*"]
-    }
+  most_recent = true
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+  }
 }
 
-resource "aws_network_interface" "interface"{
-    subnet_id       = "subnet-0f80e3f9e2e99b775"
-    security_groups = [aws_security_group.allow_tls.id]
+resource "aws_network_interface" "interface" {
+  subnet_id       = "subnet-0f80e3f9e2e99b775"
+  security_groups = [aws_security_group.allow_tls.id]
 }
 
 resource "aws_instance" "ec2" {
-    depends_on      = [aws_network_interface.interface] 
-    ami             = data.aws_ami.amazon-linux-2.id
-    instance_type   = "t2.medium"
-    user_data       = <<EOF
+  depends_on           = [aws_network_interface.interface]
+  ami                  = data.aws_ami.amazon-linux-2.id
+  instance_type        = "t2.medium"
+  user_data            = <<EOF
         #!/bin/bash
         
         ###Install_Jenkins###
@@ -62,12 +62,12 @@ resource "aws_instance" "ec2" {
         chown -R jenkins: /var/lib/jenkins/.kube
        
 EOF
-    iam_instance_profile    = aws_iam_instance_profile.profile.name
-    network_interface {
-      network_interface_id  = aws_network_interface.interface.id
-      device_index          = 0
-    }
-    tags   = {
-      name = "Jenkins"
-    }
+  iam_instance_profile = aws_iam_instance_profile.profile.name
+  network_interface {
+    network_interface_id = aws_network_interface.interface.id
+    device_index         = 0
+  }
+  tags = {
+    name = "Jenkins"
+  }
 }
